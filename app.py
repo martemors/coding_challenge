@@ -90,7 +90,7 @@ def employees_by_job_and_department():
     try:
         conn = pyodbc.connect(AZURE_SQL_CONNECTIONSTRING)
         cursor = conn.cursor()
-        #Execution of SQL Query to get Number of employees hired for each job and department in 2021 divided by quarter, ordered alphabetically by department and job.
+        #Execution of SQL query in endpoint_queries/employees_by_job_and_department.
         cursor.execute(employees_by_job_and_department.sql)
         column_names = [desc[0] for desc in cursor.description]
         data = cursor.fetchall()
@@ -108,7 +108,7 @@ def employees_by_high_hiring_departments_2021():
     try:
         conn = pyodbc.connect(AZURE_SQL_CONNECTIONSTRING)
         cursor = conn.cursor()
-        #Execution of SQL Query containing List of ids, name and number of employees hired of each department that hired more employees than the mean of employees hired in 2021 for all the departments, ordered by the number of employees hired (descending).
+        #Execution of SQL query in endpoint_queries/employees_by_high_hiring_departments_2021.
         cursor.execute(employees_by_high_hiring_departments_2021.sql) 
         column_names = [desc[0] for desc in cursor.description]
         data = cursor.fetchall()
