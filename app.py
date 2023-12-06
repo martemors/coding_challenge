@@ -18,18 +18,11 @@ from config import *
 #Set app
 app = Flask(__name__)
 
-# Azure SQL Database connection string
-AZURE_SQL_CONNECTIONSTRING = os.environ[AZURE_SQL_CONNECTIONSTRING]
-
-# Azure SQL Database access token configuration
-SQL_COPT_SS_ACCESS_TOKEN = SQL_COPT_SS_ACCESS_TOKEN
-
 # Conn to Azure database
 def get_conn(connection_string: str):
     credential = identity.DefaultAzureCredential(exclude_interactive_browser_credential=False)
     token_bytes = credential.get_token(TOKEN_URL).token.encode("UTF-16-LE")
     token_struct = struct.pack(f'<I{len(token_bytes)}s', len(token_bytes), token_bytes)
-    SQL_COPT_SS_ACCESS_TOKEN = SQL_COPT_SS_ACCESS_TOKEN
     conn = pyodbc.connect(connection_string, attrs_before={SQL_COPT_SS_ACCESS_TOKEN: token_struct})
     return conn
 
@@ -63,8 +56,7 @@ def upload_blob_to_sql():
         df = pd.read_csv(pd.compat.StringIO(csv_content))
 
         # Connect to Azure SQL Database
-        conn = pyodbc.connect(AZURE_SQL_CONNECTION_STRING)
-        cursor = conn.cursor()
+        conn = get_conn(AZURE_SQL_CONNECTIONSTRING)
 
         # Insert data into existing table in Azure SQL Database. 
         df.to_sql(target_table_name, conn, index=False, if_exists='append')
@@ -91,7 +83,7 @@ def employees_by_job_and_department():
         conn = pyodbc.connect(AZURE_SQL_CONNECTIONSTRING)
         cursor = conn.cursor()
         #Execution of SQL query in endpoint_queries/employees_by_job_and_department.
-        cursor.execute(employees_by_job_and_department.sql)
+        cursor.execute(employees_by_job_and_department.sql) #necesito profundizar como el cursor.execute accede a este file guardado en otro path.
         column_names = [desc[0] for desc in cursor.description]
         data = cursor.fetchall()
         df = pd.DataFrame(data, columns=column_names)
@@ -109,7 +101,7 @@ def employees_by_high_hiring_departments_2021():
         conn = pyodbc.connect(AZURE_SQL_CONNECTIONSTRING)
         cursor = conn.cursor()
         #Execution of SQL query in endpoint_queries/employees_by_high_hiring_departments_2021.
-        cursor.execute(employees_by_high_hiring_departments_2021.sql) 
+        cursor.execute(employees_by_high_hiring_departments_2021.sql) #necesito profundizar como el cursor.execute accede a este file guardado en otro path.
         column_names = [desc[0] for desc in cursor.description]
         data = cursor.fetchall()
         df = pd.DataFrame(data, columns=column_names)
